@@ -1,0 +1,60 @@
+from sense_hat import SenseHat
+from imapclient import IMAPClient
+import time
+import sys
+
+HostnameTrue = input('Gmail or Hotmail?')
+if HostnameTrue == from sense_hat import SenseHat
+from imapclient import IMAPClient
+import time
+import sys
+
+HostnameTrue = input('Gmail or Hotmail?')
+if HostnameTrue == 'Gmail':
+    Hostname = 'imap.gmail.com'
+elif HostnameTrue == 'Hotmail?':
+    Hostname = 'imap-mail.outlook.com'
+else:
+    print('Not an Option, Use Correct Capitals and Spelling')
+    exit()
+User = input('What is Your Email Address')
+Password = input('What is your Password')
+Newmail_Offset = 0
+CheckFreq = 20
+
+sense = SenseHat()
+sense.show_message('Hello', text_colour=[0,0,255])
+
+try:
+    server = IMAPClient(Hostname, use_uid=True, ssl=True)
+    server.login(User, Password)
+except:
+    connected = False
+    sense.show_message('Error', text_colour=[255,0,0])
+    print('Make sure to [Allow Less Secure App Access] on your Mail Account.\
+As well as being connected to a proper and stable internet connection.')
+else:
+    connected = True
+    sense.show_message('Done!', text_colour=[0,255,0])
+    select_info = server.select_folder('Inbox')
+
+try:
+    while connected:
+        folder_status = server.folder_status('Inbox','UNSEEN')
+        dict = folder_status
+        newmails = dict.get(b'UNSEEN')
+        if newmails > Newmail_Offset:
+            newmails -= Newmail_Offset
+            sense.show_message(str(newmails))
+            if newmails == 1:
+                sense.show_message('One')
+            elif newmails > 1 and newmails < 15:
+                sense.show_message('Some Mail')
+            elif newmails >= 15:
+                sense.show_message('Lots of Mail')
+        else:
+            sense.show_message('No Mail')
+        time.sleep(CheckFreq)
+except KeyboardInterrupt:
+    pass
+sense.clear()
